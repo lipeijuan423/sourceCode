@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+const program = require("commander");
+const Printer = require('@darkobits/lolcatjs');
+const chalk = require("chalk");
+const inquirer = require("inquirer");
+const shelljs = require("shelljs");
+const userHome = require("user-home");
+const ora = require("ora");
+const input = [
+    "              _ ",
+    "  _   _    __| |",
+    " | | | |   / _` |",
+    " | |_| | |  (_| |",
+    "  \__, |  \__,_|",
+    "  |___/  ",
+    "京程一灯脚手架"
+].join("\n");
+program.version(Printer.default.fromString(input), "-v,--version");
+//命令行的参数
+const bindHandler = {
+    init() {
+        inquirer
+            .prompt([
+                {
+                    type: "text",
+                    "message": "1️⃣  请输入文件夹名称",
+                    name: "dirname"
+                }
+            ])
+            .then(answers => {
+                console.log(answers.dirname);
+                shelljs.cd(`${userHome}/Desktop/`);
+                const spinner = ora("👧 downloading.....");
+                spinner.start();
+                shelljs.mkdir(answers.dirname);
+                //https://github.com/lgwebdream/yd-vue-kernel
+            });
+    }
+}
+program.option("-i,--init", "项目初始化🐶");
+program
+    .usage("<cmd> [options]").
+    arguments("<cmd> [env]")
+    .action((cmd, otherParmas) => {
+        const handler = bindHandler[cmd];
+        console.log(handler);
+        if (typeof handler == "undefined") {
+            console.error(chalk.yellow(`非常遗憾【${cmd}】暂未提供🤥`));
+            process.exit(1);
+        } else {
+            handler(otherParmas);
+        }
+    })
+program.parse(process.argv);
